@@ -1,9 +1,16 @@
 package golog
 
 import (
+	"os"
 	"fmt"
 	"log"
-	"bytes"
+	"sort"
+	"time"
+	"strings"
+	"io/ioutil"
+	"path/filepath"
+
+	"github.com/MrAndreID/gohelpers"
 )
 
 const (
@@ -21,66 +28,103 @@ const (
 )
 
 var (
-	buffer bytes.Buffer
-
-	errorLog = log.New(&buffer, PrimaryRed + "[ Error ]" + Reset + " ", log.Ldate|log.Ltime|log.Lmsgprefix)
-	successLog = log.New(&buffer, PrimaryGreen + "[ Success ]" + Reset + " ", log.Ldate|log.Ltime|log.Lmsgprefix)
-	warningLog = log.New(&buffer, PrimaryYellow + "[ Warning ]" + Reset + " ", log.Ldate|log.Ltime|log.Lmsgprefix)
-	infoLog = log.New(&buffer, PrimaryCyan + "[ Info ]" + Reset + " ", log.Ldate|log.Ltime|log.Lmsgprefix)
+	Limit int
+	LogLevel, LastUpdate string
+	CurrentDate = time.Now().Format("2006-01-02")
+	CurrentDatetime = time.Now().Format("2006-01-02 15:04:05")
 )
 
-func Error(logType string, message string) {
-	if logType == "primary" {
-		errorLog.Println(SecondaryRed + message + "." + Reset)
+func Init(logLevel string, limit int) {
+	Limit = limit
+	LogLevel = logLevel
+	newLine := gohelpers.GetNewLine()
 
-		fmt.Print(&buffer)
-		buffer.Reset()
-	} else {
-		errorLog.Println(SecondaryRed + "-> " + message + "." + Reset)
+	ignoreFile, _ := os.OpenFile(".gitignore", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	defer ignoreFile.Close()
 
-		fmt.Print(&buffer)
-		buffer.Reset()
+	contentIgnoreFile, _ := ioutil.ReadFile(".gitignore")
+	contents := strings.Split(string(contentIgnoreFile), newLine)
+
+	var availabilityLogFolder bool = false
+	for i := 0; i < len(contents); i++ {
+		if contents[i] == "logs/" {
+			availabilityLogFolder = true
+		}
+	}
+
+	if availabilityLogFolder == false {
+		ignoreFile.Write([]byte("logs/" + newLine))
+	}
+
+	if _, err := os.Stat("logs"); os.IsNotExist(err) {
+		os.Mkdir("logs", 0755)
 	}
 }
 
-func Success(logType string, message string) {
-	if logType == "primary" {
-		successLog.Println(SecondaryGreen + message + "." + Reset)
+func ExecutionLimit() {
+	if LastUpdate != CurrentDate {
+		if logFiles, _ := filepath.Glob("logs/*"); len(logFiles) > Limit + 1 {
+			sort.Strings(logFiles)
 
-		fmt.Print(&buffer)
-		buffer.Reset()
-	} else {
-		successLog.Println(SecondaryGreen + "-> " + message + "." + Reset)
+			os.Remove(logFiles[0])
 
-		fmt.Print(&buffer)
-		buffer.Reset()
+			LastUpdate = CurrentDate
+		}
 	}
 }
 
-func Warning(logType string, message string) {
-	if logType == "primary" {
-		warningLog.Println(SecondaryYellow + message + "." + Reset)
+func Error(message string) {
+	if LogLevel == "all" || LogLevel == "error" {
+		logFile, _ := os.OpenFile("logs/" + CurrentDate + ".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		defer logFile.Close()
 
-		fmt.Print(&buffer)
-		buffer.Reset()
-	} else {
-		warningLog.Println(SecondaryYellow + "-> " + message + "." + Reset)
+		errorLog := log.New(logFile, "[ ERROR ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Lshortfile)
+		errorLog.Println(message)
 
-		fmt.Print(&buffer)
-		buffer.Reset()
+		ExecutionLimit()
 	}
+
+	fmt.Println(CurrentDatetime + " " + PrimaryRed + "[ ERROR ]" + SecondaryRed + " " + message + Reset)
 }
 
-func Info(logType string, message string) {
-	if logType == "primary" {
-		infoLog.Println(SecondaryCyan + message + "." + Reset)
+func Success(message string) {
+	if LogLevel == "all" || LogLevel == "success" {
+		logFile, _ := os.OpenFile("logs/" + CurrentDate + ".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		defer logFile.Close()
 
-		fmt.Print(&buffer)
-		buffer.Reset()
-	} else {
-		infoLog.Println(SecondaryCyan + "-> " + message + "." + Reset)
+		successLog := log.New(logFile, "[ SUCCESS ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Lshortfile)
+		successLog.Println(message)
 
-		fmt.Print(&buffer)
-		buffer.Reset()
+		ExecutionLimit()
 	}
+
+	fmt.Println(CurrentDatetime + " " + PrimaryGreen + "[ SUCCESS ]" + SecondaryGreen + " " + message + Reset)
+}
+
+func Warning(message string) {
+	if LogLevel == "all" || LogLevel == "warning" {
+		logFile, _ := os.OpenFile("logs/" + CurrentDate + ".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		defer logFile.Close()
+
+		warningLog := log.New(logFile, "[ WARNING ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Lshortfile)
+		warningLog.Println(message)
+
+		ExecutionLimit()
+	}
+
+	fmt.Println(CurrentDatetime + " " + PrimaryYellow + "[ WARNING ]" + SecondaryYellow + " " + message + Reset)
+}
+
+func Info(message string) {
+	if LogLevel == "all" || LogLevel == "info" {
+		logFile, _ := os.OpenFile("logs/" + CurrentDate + ".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		defer logFile.Close()
+
+		infoLog := log.New(logFile, "[ INFO ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Lshortfile)
+		infoLog.Println(message)
+
+		ExecutionLimit()
+	}
+
+	fmt.Println(CurrentDatetime + " " + PrimaryCyan + "[ INFO ]" + SecondaryCyan + " " + message + Reset)
 }
