@@ -7,10 +7,9 @@ import (
 	"sort"
 	"time"
 	"strings"
+	"runtime"
 	"io/ioutil"
 	"path/filepath"
-
-	"github.com/MrAndreID/gohelpers"
 )
 
 const (
@@ -37,7 +36,12 @@ var (
 func Init(logLevel string, limit int) {
 	Limit = limit
 	LogLevel = logLevel
-	newLine := gohelpers.GetNewLine()
+	var newLine string
+	if runtime.GOOS == "windows" {
+		newLine = "\r\n"
+	} else {
+		newLine = "\n"
+	}
 
 	ignoreFile, _ := os.OpenFile(".gitignore", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	defer ignoreFile.Close()
