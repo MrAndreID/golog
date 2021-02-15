@@ -29,65 +29,65 @@ go get -u github.com/MrAndreID/golog
 
 ## Usage
 
+### Init
+
+To use Init Func., The `MrAndreID/GoLog` package will add/modify .gitignore file and add `logs/` and the last one will create a `logs` folder. Inside the `logs` folder will contain the log files based on the log file creation date. The contents of the first parameter (`logLevel`) are `all`, `error`, `success`, `warning`, & `info`. The first parameter (`logLevel`) is used for the log level to be stored in the log file. The second parameter is used to `limit` the number of log files created other than the day's log files.
+
+```go
+golog.Init("all", 15)
+```
+
 ### Error
 
 ```go
-golog.Error("primary", "Andrea Adam")
-golog.Error("secondary", "Andrea Adam")
+golog.Error("Andrea Adam")
 ```
 
 Output:
 
 ```sh
-2021/02/12 19:09:02 [ Error ] Andrea Adam.
-2021/02/12 19:09:02 [ Error ] -> Andrea Adam.
+2021-02-15 18:45:18 [ ERROR ] Andrea Adam
 ```
 
 ### Success
 
 ```go
-golog.Success("primary", "Andrea Adam")
-golog.Success("secondary", "Andrea Adam")
+golog.Success("Andrea Adam")
 ```
 
 Output:
 
 ```sh
-2021/02/12 19:09:02 [ Success ] Andrea Adam.
-2021/02/12 19:09:02 [ Success ] -> Andrea Adam.
+2021-02-15 18:45:18 [ SUCCESS ] Andrea Adam
 ```
 
 ### Warning
 
 ```go
-golog.Warning("primary", "Andrea Adam")
-golog.Warning("secondary", "Andrea Adam")
+golog.Warning("Andrea Adam")
 ```
 
 Output:
 
 ```sh
-2021/02/12 19:09:02 [ Warning ] Andrea Adam.
-2021/02/12 19:09:02 [ Warning ] -> Andrea Adam.
+2021-02-15 18:45:18 [ WARNING ] Andrea Adam
 ```
 
 ### Info
 
 ```go
-golog.Info("primary", "Andrea Adam")
-golog.Info("secondary", "Andrea Adam")
+golog.Info("Andrea Adam")
 ```
 
 Output:
 
 ```sh
-2021/02/12 19:09:02 [ Info ] Andrea Adam.
-2021/02/12 19:09:02 [ Info ] -> Andrea Adam.
+2021-02-15 18:45:18 [ INFO ] Andrea Adam
 ```
 
 ## Full Example
 
-Full Example can be found on the [Go Playground website](https://play.golang.com/p/luIJzFDShiy).
+Full Example can be found on the [Go Playground website](https://play.golang.com/p/zk2GlYUvClU).
 
 ## Versioning
 
