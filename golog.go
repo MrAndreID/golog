@@ -30,7 +30,6 @@ var (
 	Limit int
 	LogLevel, LastUpdate string
 	CurrentDate = time.Now().Format("2006-01-02")
-	CurrentDatetime = time.Now().Format("2006-01-02 15:04:05")
 )
 
 func Init(logLevel string, limit int) {
@@ -88,6 +87,7 @@ func Error(message string) {
 		ExecutionLimit()
 	}
 
+	var CurrentDatetime = time.Now().Format("2006-01-02 15:04:05")
 	fmt.Println(CurrentDatetime + " " + PrimaryRed + "[ ERROR ]" + SecondaryRed + " " + message + Reset)
 }
 
@@ -102,6 +102,7 @@ func Success(message string) {
 		ExecutionLimit()
 	}
 
+	var CurrentDatetime = time.Now().Format("2006-01-02 15:04:05")
 	fmt.Println(CurrentDatetime + " " + PrimaryGreen + "[ SUCCESS ]" + SecondaryGreen + " " + message + Reset)
 }
 
@@ -116,6 +117,7 @@ func Warning(message string) {
 		ExecutionLimit()
 	}
 
+	var CurrentDatetime = time.Now().Format("2006-01-02 15:04:05")
 	fmt.Println(CurrentDatetime + " " + PrimaryYellow + "[ WARNING ]" + SecondaryYellow + " " + message + Reset)
 }
 
@@ -130,5 +132,6 @@ func Info(message string) {
 		ExecutionLimit()
 	}
 
+	var CurrentDatetime = time.Now().Format("2006-01-02 15:04:05")
 	fmt.Println(CurrentDatetime + " " + PrimaryCyan + "[ INFO ]" + SecondaryCyan + " " + message + Reset)
 }
