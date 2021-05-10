@@ -35,6 +35,7 @@ var (
 func Init(logLevel string, limit int) {
 	Limit = limit
 	LogLevel = logLevel
+
 	var newLine string
 	if runtime.GOOS == "windows" {
 		newLine = "\r\n"
@@ -77,60 +78,68 @@ func ExecutionLimit() {
 }
 
 func Error(message string) {
-	if LogLevel == "all" || LogLevel == "error" {
-		logFile, _ := os.OpenFile("logs/" + CurrentDate + ".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-		defer logFile.Close()
-
-		errorLog := log.New(logFile, "[ ERROR ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Lshortfile)
-		errorLog.Println(message)
-
-		ExecutionLimit()
-	}
+	go func() {
+		if LogLevel == "all" || LogLevel == "error" {
+			logFile, _ := os.OpenFile("logs/" + CurrentDate + ".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			defer logFile.Close()
+	
+			errorLog := log.New(logFile, "[ ERROR ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Lshortfile)
+			errorLog.Println(message)
+	
+			go ExecutionLimit()
+		}
+	}()
 
 	var CurrentDatetime = time.Now().Format("2006-01-02 15:04:05")
 	fmt.Println(CurrentDatetime + " " + PrimaryRed + "[ ERROR ]" + SecondaryRed + " " + message + Reset)
 }
 
 func Success(message string) {
-	if LogLevel == "all" || LogLevel == "success" {
-		logFile, _ := os.OpenFile("logs/" + CurrentDate + ".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-		defer logFile.Close()
-
-		successLog := log.New(logFile, "[ SUCCESS ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Lshortfile)
-		successLog.Println(message)
-
-		ExecutionLimit()
-	}
+	go func() {
+		if LogLevel == "all" || LogLevel == "success" {
+			logFile, _ := os.OpenFile("logs/" + CurrentDate + ".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			defer logFile.Close()
+	
+			successLog := log.New(logFile, "[ SUCCESS ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Lshortfile)
+			successLog.Println(message)
+	
+			go ExecutionLimit()
+		}
+	}()
 
 	var CurrentDatetime = time.Now().Format("2006-01-02 15:04:05")
 	fmt.Println(CurrentDatetime + " " + PrimaryGreen + "[ SUCCESS ]" + SecondaryGreen + " " + message + Reset)
 }
 
 func Warning(message string) {
-	if LogLevel == "all" || LogLevel == "warning" {
-		logFile, _ := os.OpenFile("logs/" + CurrentDate + ".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-		defer logFile.Close()
-
-		warningLog := log.New(logFile, "[ WARNING ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Lshortfile)
-		warningLog.Println(message)
-
-		ExecutionLimit()
-	}
+	go func() {
+		if LogLevel == "all" || LogLevel == "warning" {
+			logFile, _ := os.OpenFile("logs/" + CurrentDate + ".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			defer logFile.Close()
+	
+			warningLog := log.New(logFile, "[ WARNING ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Lshortfile)
+			warningLog.Println(message)
+	
+			go ExecutionLimit()
+		}
+	}()
 
 	var CurrentDatetime = time.Now().Format("2006-01-02 15:04:05")
 	fmt.Println(CurrentDatetime + " " + PrimaryYellow + "[ WARNING ]" + SecondaryYellow + " " + message + Reset)
 }
 
 func Info(message string) {
-	if LogLevel == "all" || LogLevel == "info" {
-		logFile, _ := os.OpenFile("logs/" + CurrentDate + ".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-		defer logFile.Close()
-
-		infoLog := log.New(logFile, "[ INFO ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Lshortfile)
-		infoLog.Println(message)
-
-		ExecutionLimit()
-	}
+	go func() {
+		if LogLevel == "all" || LogLevel == "info" {
+			logFile, _ := os.OpenFile("logs/" + CurrentDate + ".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			defer logFile.Close()
+	
+			infoLog := log.New(logFile, "[ INFO ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Lshortfile)
+			infoLog.Println(message)
+	
+			go ExecutionLimit()
+		}
+	}()
 
 	var CurrentDatetime = time.Now().Format("2006-01-02 15:04:05")
 	fmt.Println(CurrentDatetime + " " + PrimaryCyan + "[ INFO ]" + SecondaryCyan + " " + message + Reset)
