@@ -29,7 +29,6 @@ const (
 var (
 	Limit int
 	LogLevel, LastUpdate string
-	CurrentDate = time.Now().Format("2006-01-02")
 )
 
 func Init(logLevel string, limit int) {
@@ -66,6 +65,8 @@ func Init(logLevel string, limit int) {
 }
 
 func ExecutionLimit() {
+	CurrentDate := time.Now().Format("2006-01-02")
+
 	if LastUpdate != CurrentDate {
 		if logFiles, _ := filepath.Glob("logs/*"); len(logFiles) > Limit + 1 {
 			sort.Strings(logFiles)
@@ -80,6 +81,8 @@ func ExecutionLimit() {
 func Error(message string) {
 	go func() {
 		if LogLevel == "all" || LogLevel == "error" {
+			CurrentDate := time.Now().Format("2006-01-02")
+		
 			logFile, _ := os.OpenFile("logs/" + CurrentDate + ".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 			defer logFile.Close()
 	
@@ -97,6 +100,8 @@ func Error(message string) {
 func Success(message string) {
 	go func() {
 		if LogLevel == "all" || LogLevel == "success" {
+			CurrentDate := time.Now().Format("2006-01-02")
+		
 			logFile, _ := os.OpenFile("logs/" + CurrentDate + ".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 			defer logFile.Close()
 	
@@ -114,6 +119,8 @@ func Success(message string) {
 func Warning(message string) {
 	go func() {
 		if LogLevel == "all" || LogLevel == "warning" {
+			CurrentDate := time.Now().Format("2006-01-02")
+		
 			logFile, _ := os.OpenFile("logs/" + CurrentDate + ".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 			defer logFile.Close()
 	
@@ -131,6 +138,8 @@ func Warning(message string) {
 func Info(message string) {
 	go func() {
 		if LogLevel == "all" || LogLevel == "info" {
+			CurrentDate := time.Now().Format("2006-01-02")
+		
 			logFile, _ := os.OpenFile("logs/" + CurrentDate + ".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 			defer logFile.Close()
 	
