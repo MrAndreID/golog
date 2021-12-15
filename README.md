@@ -31,10 +31,10 @@ go get -u github.com/MrAndreID/golog
 
 ### Init
 
-To use Init Func., The `MrAndreID/GoLog` package will add/modify .gitignore file and add `logs/` and the last one will create a `logs` folder. Inside the `logs` folder will contain the log files based on the log file creation date. The contents of the first parameter (`logLevel`) are `all`, `error`, `success`, `warning`, & `info`. The first parameter (`logLevel`) is used for the log level to be stored in the log file. The second parameter is used to `limit` the number of log files created other than the day's log files.
+To use Init Func., The `MrAndreID/GoLog` package will add/modify .gitignore file and add `logs/` and the last one will create a `logs` folder. Inside the `logs` folder will contain the log files based on the log file creation date. The contents of the first parameter is used to `limit` the number of log files created other than the day's log files. The second parameter (`logLevel`) are `all`, `error`, `success`, `warning`, & `info`. The second parameter (`logLevel`) is used for the log level to be stored in the log file. The third parameter (`timezone`) is used to set the time zone used. The fourth parameter (`style`) is used to set the style. Style is to add color.
 
 ```go
-golog.Init("all", 15)
+golog.Init(30, "all", "Asia/Jakarta", false)
 ```
 
 ### Error

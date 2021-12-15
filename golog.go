@@ -1,74 +1,95 @@
 package golog
 
 import (
-	"os"
 	"fmt"
-	"log"
-	"sort"
-	"time"
-	"strings"
-	"runtime"
 	"io/ioutil"
+	"log"
+	"os"
 	"path/filepath"
+	"runtime"
+	"sort"
+	"strings"
+	"time"
 )
 
 const (
 	Reset = "\033[0m"
 
-	PrimaryRed = "\033[1;41m"
-	PrimaryGreen = "\033[1;42m"
+	PrimaryRed    = "\033[1;41m"
+	PrimaryGreen  = "\033[1;42m"
 	PrimaryYellow = "\033[1;43m"
-	PrimaryCyan = "\033[1;46m"
+	PrimaryCyan   = "\033[1;46m"
 
-	SecondaryRed = "\033[0;91m"
-	SecondaryGreen = "\033[0;92m"
+	SecondaryRed    = "\033[0;91m"
+	SecondaryGreen  = "\033[0;92m"
 	SecondaryYellow = "\033[0;93m"
-	SecondaryCyan = "\033[0;96m"
+	SecondaryCyan   = "\033[0;96m"
 )
 
 var (
-	Limit int
+	Limit                int
 	LogLevel, LastUpdate string
+	Timezone             time.Location
+	Style                bool
 )
 
-func Init(logLevel string, limit int) {
+func Init(limit int, logLevel, timezone string, style bool) error {
+	var (
+		newLine               string
+		availabilityLogFolder bool = false
+	)
+
+	timeLocation, err := time.LoadLocation(timezone)
+	if err != nil {
+		return err
+	}
+
 	Limit = limit
 	LogLevel = logLevel
+	Timezone = *timeLocation
+	Style = style
 
-	var newLine string
 	if runtime.GOOS == "windows" {
 		newLine = "\r\n"
 	} else {
 		newLine = "\n"
 	}
 
-	ignoreFile, _ := os.OpenFile(".gitignore", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	ignoreFile, err := os.OpenFile(".gitignore", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
 	defer ignoreFile.Close()
 
-	contentIgnoreFile, _ := ioutil.ReadFile(".gitignore")
+	contentIgnoreFile, err := ioutil.ReadFile(".gitignore")
+	if err != nil {
+		return err
+	}
+
 	contents := strings.Split(string(contentIgnoreFile), newLine)
 
-	var availabilityLogFolder bool = false
 	for i := 0; i < len(contents); i++ {
 		if contents[i] == "logs/" {
 			availabilityLogFolder = true
 		}
 	}
 
-	if availabilityLogFolder == false {
+	if !availabilityLogFolder {
 		ignoreFile.Write([]byte("logs/" + newLine))
 	}
 
 	if _, err := os.Stat("logs"); os.IsNotExist(err) {
 		os.Mkdir("logs", 0755)
 	}
+
+	return nil
 }
 
 func ExecutionLimit() {
-	CurrentDate := time.Now().Format("2006-01-02")
+	CurrentDate := time.Now().In(&Timezone).Format("2006-01-02")
 
 	if LastUpdate != CurrentDate {
-		if logFiles, _ := filepath.Glob("logs/*"); len(logFiles) > Limit + 1 {
+		if logFiles, _ := filepath.Glob("logs/*"); len(logFiles) > Limit+1 {
 			sort.Strings(logFiles)
 
 			os.Remove(logFiles[0])
@@ -81,75 +102,95 @@ func ExecutionLimit() {
 func Error(message string) {
 	go func() {
 		if LogLevel == "all" || LogLevel == "error" {
-			CurrentDate := time.Now().Format("2006-01-02")
-		
-			logFile, _ := os.OpenFile("logs/" + CurrentDate + ".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			CurrentDate := time.Now().In(&Timezone).Format("2006-01-02")
+
+			logFile, _ := os.OpenFile("logs/"+CurrentDate+".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 			defer logFile.Close()
-	
-			errorLog := log.New(logFile, "[ ERROR ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Lshortfile)
+
+			errorLog := log.New(logFile, "[ ERROR ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Llongfile)
 			errorLog.Println(message)
-	
+
 			go ExecutionLimit()
 		}
 	}()
 
-	var CurrentDatetime = time.Now().Format("2006-01-02 15:04:05")
-	fmt.Println(CurrentDatetime + " " + PrimaryRed + "[ ERROR ]" + SecondaryRed + " " + message + Reset)
+	var CurrentDatetime = time.Now().In(&Timezone).Format("2006-01-02 15:04:05")
+
+	if Style {
+		fmt.Println(CurrentDatetime + " " + PrimaryRed + "[ ERROR ]" + SecondaryRed + " " + message + Reset)
+	} else {
+		fmt.Println(CurrentDatetime + " [ ERROR ] " + message)
+	}
 }
 
 func Success(message string) {
 	go func() {
 		if LogLevel == "all" || LogLevel == "success" {
-			CurrentDate := time.Now().Format("2006-01-02")
-		
-			logFile, _ := os.OpenFile("logs/" + CurrentDate + ".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			CurrentDate := time.Now().In(&Timezone).Format("2006-01-02")
+
+			logFile, _ := os.OpenFile("logs/"+CurrentDate+".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 			defer logFile.Close()
-	
-			successLog := log.New(logFile, "[ SUCCESS ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Lshortfile)
+
+			successLog := log.New(logFile, "[ SUCCESS ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Llongfile)
 			successLog.Println(message)
-	
+
 			go ExecutionLimit()
 		}
 	}()
 
-	var CurrentDatetime = time.Now().Format("2006-01-02 15:04:05")
-	fmt.Println(CurrentDatetime + " " + PrimaryGreen + "[ SUCCESS ]" + SecondaryGreen + " " + message + Reset)
+	var CurrentDatetime = time.Now().In(&Timezone).Format("2006-01-02 15:04:05")
+
+	if Style {
+		fmt.Println(CurrentDatetime + " " + PrimaryGreen + "[ SUCCESS ]" + SecondaryGreen + " " + message + Reset)
+	} else {
+		fmt.Println(CurrentDatetime + " [ SUCCESS ] " + message)
+	}
 }
 
 func Warning(message string) {
 	go func() {
 		if LogLevel == "all" || LogLevel == "warning" {
-			CurrentDate := time.Now().Format("2006-01-02")
-		
-			logFile, _ := os.OpenFile("logs/" + CurrentDate + ".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			CurrentDate := time.Now().In(&Timezone).Format("2006-01-02")
+
+			logFile, _ := os.OpenFile("logs/"+CurrentDate+".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 			defer logFile.Close()
-	
-			warningLog := log.New(logFile, "[ WARNING ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Lshortfile)
+
+			warningLog := log.New(logFile, "[ WARNING ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Llongfile)
 			warningLog.Println(message)
-	
+
 			go ExecutionLimit()
 		}
 	}()
 
-	var CurrentDatetime = time.Now().Format("2006-01-02 15:04:05")
-	fmt.Println(CurrentDatetime + " " + PrimaryYellow + "[ WARNING ]" + SecondaryYellow + " " + message + Reset)
+	var CurrentDatetime = time.Now().In(&Timezone).Format("2006-01-02 15:04:05")
+
+	if Style {
+		fmt.Println(CurrentDatetime + " " + PrimaryYellow + "[ WARNING ]" + SecondaryYellow + " " + message + Reset)
+	} else {
+		fmt.Println(CurrentDatetime + " [ WARNING ] " + message)
+	}
 }
 
 func Info(message string) {
 	go func() {
 		if LogLevel == "all" || LogLevel == "info" {
-			CurrentDate := time.Now().Format("2006-01-02")
-		
-			logFile, _ := os.OpenFile("logs/" + CurrentDate + ".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			CurrentDate := time.Now().In(&Timezone).Format("2006-01-02")
+
+			logFile, _ := os.OpenFile("logs/"+CurrentDate+".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 			defer logFile.Close()
-	
-			infoLog := log.New(logFile, "[ INFO ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Lshortfile)
+
+			infoLog := log.New(logFile, "[ INFO ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Llongfile)
 			infoLog.Println(message)
-	
+
 			go ExecutionLimit()
 		}
 	}()
 
-	var CurrentDatetime = time.Now().Format("2006-01-02 15:04:05")
-	fmt.Println(CurrentDatetime + " " + PrimaryCyan + "[ INFO ]" + SecondaryCyan + " " + message + Reset)
+	var CurrentDatetime = time.Now().In(&Timezone).Format("2006-01-02 15:04:05")
+
+	if Style {
+		fmt.Println(CurrentDatetime + " " + PrimaryCyan + "[ INFO ]" + SecondaryCyan + " " + message + Reset)
+	} else {
+		fmt.Println(CurrentDatetime + " [ INFO ] " + message)
+	}
 }
