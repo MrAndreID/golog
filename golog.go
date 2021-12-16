@@ -1,6 +1,7 @@
 package golog
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -29,24 +30,35 @@ const (
 var (
 	Limit                int
 	LogLevel, LastUpdate string
-	Timezone             time.Location
+	TimeZone             time.Location
 	Style                bool
 )
 
-func Init(limit int, logLevel, timezone string, style bool) error {
+func Init(limit int, logLevel, timeZone string, style bool) error {
 	var (
 		newLine               string
 		availabilityLogFolder bool = false
+		availabilitylogLevel  bool = false
 	)
 
-	timeLocation, err := time.LoadLocation(timezone)
+	for _, value := range []string{"all", "error", "success", "warning", "info"} {
+		if value == logLevel {
+			availabilitylogLevel = true
+		}
+	}
+
+	if !availabilitylogLevel {
+		return errors.New("unknown log level " + logLevel)
+	}
+
+	timeLocation, err := time.LoadLocation(timeZone)
 	if err != nil {
 		return err
 	}
 
 	Limit = limit
 	LogLevel = logLevel
-	Timezone = *timeLocation
+	TimeZone = *timeLocation
 	Style = style
 
 	if runtime.GOOS == "windows" {
@@ -86,7 +98,7 @@ func Init(limit int, logLevel, timezone string, style bool) error {
 }
 
 func ExecutionLimit() {
-	CurrentDate := time.Now().In(&Timezone).Format("2006-01-02")
+	CurrentDate := time.Now().In(&TimeZone).Format("2006-01-02")
 
 	if LastUpdate != CurrentDate {
 		if logFiles, _ := filepath.Glob("logs/*"); len(logFiles) > Limit+1 {
@@ -102,7 +114,7 @@ func ExecutionLimit() {
 func Error(message string) {
 	go func() {
 		if LogLevel == "all" || LogLevel == "error" {
-			CurrentDate := time.Now().In(&Timezone).Format("2006-01-02")
+			CurrentDate := time.Now().In(&TimeZone).Format("2006-01-02")
 
 			logFile, _ := os.OpenFile("logs/"+CurrentDate+".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 			defer logFile.Close()
@@ -114,7 +126,7 @@ func Error(message string) {
 		}
 	}()
 
-	var CurrentDatetime = time.Now().In(&Timezone).Format("2006-01-02 15:04:05")
+	var CurrentDatetime = time.Now().In(&TimeZone).Format("2006-01-02 15:04:05")
 
 	if Style {
 		fmt.Println(CurrentDatetime + " " + PrimaryRed + "[ ERROR ]" + SecondaryRed + " " + message + Reset)
@@ -126,7 +138,7 @@ func Error(message string) {
 func Success(message string) {
 	go func() {
 		if LogLevel == "all" || LogLevel == "success" {
-			CurrentDate := time.Now().In(&Timezone).Format("2006-01-02")
+			CurrentDate := time.Now().In(&TimeZone).Format("2006-01-02")
 
 			logFile, _ := os.OpenFile("logs/"+CurrentDate+".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 			defer logFile.Close()
@@ -138,7 +150,7 @@ func Success(message string) {
 		}
 	}()
 
-	var CurrentDatetime = time.Now().In(&Timezone).Format("2006-01-02 15:04:05")
+	var CurrentDatetime = time.Now().In(&TimeZone).Format("2006-01-02 15:04:05")
 
 	if Style {
 		fmt.Println(CurrentDatetime + " " + PrimaryGreen + "[ SUCCESS ]" + SecondaryGreen + " " + message + Reset)
@@ -150,7 +162,7 @@ func Success(message string) {
 func Warning(message string) {
 	go func() {
 		if LogLevel == "all" || LogLevel == "warning" {
-			CurrentDate := time.Now().In(&Timezone).Format("2006-01-02")
+			CurrentDate := time.Now().In(&TimeZone).Format("2006-01-02")
 
 			logFile, _ := os.OpenFile("logs/"+CurrentDate+".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 			defer logFile.Close()
@@ -162,7 +174,7 @@ func Warning(message string) {
 		}
 	}()
 
-	var CurrentDatetime = time.Now().In(&Timezone).Format("2006-01-02 15:04:05")
+	var CurrentDatetime = time.Now().In(&TimeZone).Format("2006-01-02 15:04:05")
 
 	if Style {
 		fmt.Println(CurrentDatetime + " " + PrimaryYellow + "[ WARNING ]" + SecondaryYellow + " " + message + Reset)
@@ -174,7 +186,7 @@ func Warning(message string) {
 func Info(message string) {
 	go func() {
 		if LogLevel == "all" || LogLevel == "info" {
-			CurrentDate := time.Now().In(&Timezone).Format("2006-01-02")
+			CurrentDate := time.Now().In(&TimeZone).Format("2006-01-02")
 
 			logFile, _ := os.OpenFile("logs/"+CurrentDate+".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 			defer logFile.Close()
@@ -186,7 +198,7 @@ func Info(message string) {
 		}
 	}()
 
-	var CurrentDatetime = time.Now().In(&Timezone).Format("2006-01-02 15:04:05")
+	var CurrentDatetime = time.Now().In(&TimeZone).Format("2006-01-02 15:04:05")
 
 	if Style {
 		fmt.Println(CurrentDatetime + " " + PrimaryCyan + "[ INFO ]" + SecondaryCyan + " " + message + Reset)
