@@ -112,19 +112,17 @@ func ExecutionLimit() {
 }
 
 func Error(message string) {
-	go func() {
-		if LogLevel == "all" || LogLevel == "error" {
-			CurrentDate := time.Now().In(&TimeZone).Format("2006-01-02")
+	if LogLevel == "all" || LogLevel == "error" {
+		CurrentDate := time.Now().In(&TimeZone).Format("2006-01-02")
 
-			logFile, _ := os.OpenFile("logs/"+CurrentDate+".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-			defer logFile.Close()
+		logFile, _ := os.OpenFile("logs/"+CurrentDate+".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		defer logFile.Close()
 
-			errorLog := log.New(logFile, "[ ERROR ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Llongfile)
-			errorLog.Println(message)
+		errorLog := log.New(logFile, "[ ERROR ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Llongfile)
+		errorLog.Println(message)
 
-			go ExecutionLimit()
-		}
-	}()
+		go ExecutionLimit()
+	}
 
 	var CurrentDatetime = time.Now().In(&TimeZone).Format("2006-01-02 15:04:05")
 
@@ -136,19 +134,17 @@ func Error(message string) {
 }
 
 func Success(message string) {
-	go func() {
-		if LogLevel == "all" || LogLevel == "success" {
-			CurrentDate := time.Now().In(&TimeZone).Format("2006-01-02")
+	if LogLevel == "all" || LogLevel == "success" {
+		CurrentDate := time.Now().In(&TimeZone).Format("2006-01-02")
 
-			logFile, _ := os.OpenFile("logs/"+CurrentDate+".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-			defer logFile.Close()
+		logFile, _ := os.OpenFile("logs/"+CurrentDate+".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		defer logFile.Close()
 
-			successLog := log.New(logFile, "[ SUCCESS ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Llongfile)
-			successLog.Println(message)
+		successLog := log.New(logFile, "[ SUCCESS ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Llongfile)
+		successLog.Println(message)
 
-			go ExecutionLimit()
-		}
-	}()
+		go ExecutionLimit()
+	}
 
 	var CurrentDatetime = time.Now().In(&TimeZone).Format("2006-01-02 15:04:05")
 
@@ -160,19 +156,17 @@ func Success(message string) {
 }
 
 func Warning(message string) {
-	go func() {
-		if LogLevel == "all" || LogLevel == "warning" {
-			CurrentDate := time.Now().In(&TimeZone).Format("2006-01-02")
+	if LogLevel == "all" || LogLevel == "warning" {
+		CurrentDate := time.Now().In(&TimeZone).Format("2006-01-02")
 
-			logFile, _ := os.OpenFile("logs/"+CurrentDate+".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-			defer logFile.Close()
+		logFile, _ := os.OpenFile("logs/"+CurrentDate+".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		defer logFile.Close()
 
-			warningLog := log.New(logFile, "[ WARNING ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Llongfile)
-			warningLog.Println(message)
+		warningLog := log.New(logFile, "[ WARNING ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Llongfile)
+		warningLog.Println(message)
 
-			go ExecutionLimit()
-		}
-	}()
+		go ExecutionLimit()
+	}
 
 	var CurrentDatetime = time.Now().In(&TimeZone).Format("2006-01-02 15:04:05")
 
@@ -184,19 +178,17 @@ func Warning(message string) {
 }
 
 func Info(message string) {
-	go func() {
-		if LogLevel == "all" || LogLevel == "info" {
-			CurrentDate := time.Now().In(&TimeZone).Format("2006-01-02")
+	if LogLevel == "all" || LogLevel == "info" {
+		CurrentDate := time.Now().In(&TimeZone).Format("2006-01-02")
 
-			logFile, _ := os.OpenFile("logs/"+CurrentDate+".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-			defer logFile.Close()
+		logFile, _ := os.OpenFile("logs/"+CurrentDate+".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		defer logFile.Close()
 
-			infoLog := log.New(logFile, "[ INFO ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Llongfile)
-			infoLog.Println(message)
+		infoLog := log.New(logFile, "[ INFO ] ", log.Ldate|log.Ltime|log.Lmsgprefix|log.Llongfile)
+		infoLog.Println(message)
 
-			go ExecutionLimit()
-		}
-	}()
+		go ExecutionLimit()
+	}
 
 	var CurrentDatetime = time.Now().In(&TimeZone).Format("2006-01-02 15:04:05")
 
